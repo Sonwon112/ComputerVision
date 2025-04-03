@@ -14,7 +14,9 @@ public class ObjectDetection : MonoBehaviour
     public RectTransform boundingBoxContainer; // 바운딩 박스를 그릴 부모 컨테이너
     public List<int> targetClasses = new List<int>();  // 필터링할 클래스 인덱스 리스트
 
+    [Header("Output Target")]
     public GameObject posObject;
+    public Cernerbee carnerbee;
 
     private IWorker worker;
     private Texture2D tempTexture;
@@ -75,7 +77,7 @@ public class ObjectDetection : MonoBehaviour
             ProcessOutput(output);
             postprocessStopwatch.Stop();
 
-            UnityEngine.Debug.Log(output);
+            //UnityEngine.Debug.Log(output);
             // 디버그 로그 출력
             //UnityEngine.Debug.Log($"Preprocess time: {preprocessStopwatch.ElapsedMilliseconds} ms, " +
             //                      $"Inference time: {inferenceStopwatch.ElapsedMilliseconds} ms, " +
@@ -178,6 +180,7 @@ public class ObjectDetection : MonoBehaviour
             }
 
             if (keyPosition == null) return;
+            List<Vector3> trakingCoordinate = new List<Vector3>();
             for (int i = 0; i < keyPosition.Length; i++)
             {
                 GameObject target = posObject.transform.Find(""+i).gameObject;
@@ -187,13 +190,15 @@ public class ObjectDetection : MonoBehaviour
                 if (keyPosition[i][2] < 0.5f)
                 {
                     target.SetActive(false);
+                    trakingCoordinate.Add(new Vector3(-1,-1,-1));
                 }
 
                 target.transform.position = new Vector3(keyPosition[i][0]*-1, keyPosition[i][1] * -1, 0);
+                trakingCoordinate.Add(new Vector3(keyPosition[i][0] * -1, keyPosition[i][1] * -1, 0));
 
                 //UnityEngine.Debug.Log("index : "+i+", x : " + keyPosition[i][0]+", y : " + keyPosition[i][1]);
             }
-
+            carnerbee.setTrakingCoordinate(trakingCoordinate);
 
             /*            // NMS 적용
                         List<BoundingBox> finalBoxes = ApplyNMS(boxes, iouThreshold);
