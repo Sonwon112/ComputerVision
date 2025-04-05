@@ -178,26 +178,31 @@ public class ObjectDetection : MonoBehaviour
                     boxes.Add(new BoundingBox(x1, y1, x2, y2, maxPercent, 1));
                 }*/
             }
-
-            if (keyPosition == null) return;
-            List<Vector3> trakingCoordinate = new List<Vector3>();
+            Vector3[] trakingCoordinate = new Vector3[17];
+            for (int i = 0; i < trakingCoordinate.Length; i++)
+            {
+                trakingCoordinate[i] = new Vector3(-1, -1, -1);
+            }            
             for (int i = 0; i < keyPosition.Length; i++)
             {
                 GameObject target = posObject.transform.Find(""+i).gameObject;
                 if (target == null) return;
                 target.SetActive(true);
 
+                if (keyPosition[i] == null) continue;
                 if (keyPosition[i][2] < 0.5f)
                 {
                     target.SetActive(false);
-                    trakingCoordinate.Add(new Vector3(-1,-1,-1));
+                    trakingCoordinate[i] = new Vector3(-1, -1, -1);
                 }
-
-                target.transform.position = new Vector3(keyPosition[i][0]*-1, keyPosition[i][1] * -1, 0);
-                trakingCoordinate.Add(new Vector3(keyPosition[i][0] * -1, keyPosition[i][1] * -1, 0));
-
+                else
+                {
+                    target.transform.position = new Vector3(Mathf.Ceil(keyPosition[i][0] * -1), Mathf.Ceil(keyPosition[i][1] * -1), 0);
+                    trakingCoordinate[i] = new Vector3(Mathf.Ceil(keyPosition[i][0] * -1), Mathf.Ceil(keyPosition[i][1] * -1), 0);
+                }
                 //UnityEngine.Debug.Log("index : "+i+", x : " + keyPosition[i][0]+", y : " + keyPosition[i][1]);
             }
+            //UnityEngine.Debug.Log(trakingCoordinate);
             carnerbee.setTrakingCoordinate(trakingCoordinate);
 
             /*            // NMS Àû¿ë
