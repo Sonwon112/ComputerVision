@@ -45,6 +45,8 @@ public class Cernerbee : MonoBehaviour
     // 15. 51, 52, 53 => 왼 발
     // 16. 54, 55, 56 => 오 발
     private Vector3[] trakingCoordinate = new Vector3[17];
+    private Vector3[] firstTrakingCoordinate = new Vector3[17];
+
     private Vector3[] prevRotation = new Vector3[10];
 
     // Start is called before the first frame update
@@ -64,7 +66,18 @@ public class Cernerbee : MonoBehaviour
     void Update()
     {
         if (trakingCoordinate == null || trakingCoordinate.Length == 0) return;
-
+        if(firstTrakingCoordinate == null)
+        {
+            for (int i = 0; i < trakingCoordinate.Length; i++)
+            {
+                if (trakingCoordinate[i] == new Vector3(-1, -1, -1)) break;
+                if (i == trakingCoordinate.Length - 1)
+                {
+                    firstTrakingCoordinate = trakingCoordinate;
+                }
+            }
+        }
+        
 
         // 왼 위팔
         calcAngleAndSetRotation(7, 5, 1, (angle, currAngle, direction) => { 
@@ -161,16 +174,56 @@ public class Cernerbee : MonoBehaviour
         });
         //Debug.Log(rightarm);
 
-       /* // 왼 허벅지
-        float leftUppefLeg = calcAngleSetRotationForLeg(13, 11, 5, (angle) => {
-            if (angle >= 250) return -90f;
-            else return 90f;
+        // 왼 허벅지
+        float leftUppefLeg = calcAngleAndSetRotation(13, 11, 5, (angle, currAngle, direction) =>
+        {
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
+            
+
+
+            Debug.Log("angle : " + angle + ", dircetion : " + direction);
+            result.x = angle;
+            return result.x;
         });
+
         // 오른 허벅지
-        float rightUppefLeg = calcAngleSetRotationForLeg(14, 12, 7, (angle) => {
-            if (angle >= 250) return -90f;
-            else return 90f;
-        });*/
+        float rightUppefLeg = calcAngleAndSetRotation(14, 12, 7, (angle, currAngle, direction) => {
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
+            //Debug.Log("angle : "+angle + ", dircetion : "+direction);
+            if(direction.x < 0)
+            {
+                if (direction.y < 0)
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.x = angle-180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 180 ~ 270 
+                    if (angle < 180) result.x = angle+180;
+                    else result.x = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 0 ~ 90
+                    if (angle > 90) result.x = angle-180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.x = angle+180;
+                    else result.x = angle;
+                }
+            }
+
+            result.x *= -1;
+            return result.x;
+        });
 
         //Debug.Log(leftUppefLeg);
         //Debug.Log(rightUppefLeg + "," + AmatureBone[7].localEulerAngles.x);
@@ -200,24 +253,11 @@ public class Cernerbee : MonoBehaviour
         });
 
         // 머리
-        calcAngleAndSetRotation(shoulder, trakingCoordinate[0], 0, (boneAngle, currAngle, direction) => {
-            Debug.Log("angle : " + Mathf.Ceil(boneAngle) + ", direction : " + direction);
-            Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
-            //if (boneAngle == 0) { return prevRotation[0]; }
-            if (direction.x > 0)
-            {
-                if(boneAngle > 90) result.z = 360 - boneAngle;
-                else result.z = boneAngle - 90f;
-            }
-            else
-            {
-                if (boneAngle < 90) result.z = 360 - boneAngle;
-                else result.z = boneAngle + 90f;
-            }
+        float headAngle = calcPerpendicularAngle(trakingCoordinate[3], trakingCoordinate[4]);
+        Vector3 nextHeadAngle = AmatureBone[0].localEulerAngles;
 
-            result.z *= -1;
-            return result;
-        });
+        nextHeadAngle.z = headAngle;
+        AmatureBone[0].localEulerAngles = nextHeadAngle;
     }
 
     public void setTrakingCoordinate(Vector3[] trakingCoordinate)
@@ -225,11 +265,27 @@ public class Cernerbee : MonoBehaviour
         this.trakingCoordinate = trakingCoordinate;
     }
 
+    /// <summary>
+    /// 두 개의 traking 좌표를 통해 회전값 및 방향을 찾아 지정된 bone의 회전값을 반영하는 함수
+    /// </summary>
+    /// <param name="topTrakingIndex"> 첫번째 traking 좌표 index </param>
+    /// <param name="bottomTrakingIndex"> 두번째 traking 좌표 index </param>
+    /// <param name="amatureIndex"> bone 배열의 index </param>
+    /// <param name="tmp">각도를 보정 하는 함수 </param>
+    /// <returns> 측정된 각도 </returns>
     float calcAngleAndSetRotation(int topTrakingIndex, int bottomTrakingIndex, int amatureIndex, Func<float, Vector3, Vector3, Vector3> tmp)
     {
         return this.calcAngleAndSetRotation(trakingCoordinate[topTrakingIndex], trakingCoordinate[bottomTrakingIndex], amatureIndex, tmp);
     }
 
+    /// <summary>
+    /// 두 개의 traking 좌표를 통해 회전값 및 방향을 찾아 지정된 bone의 회전값을 반영하는 함수
+    /// </summary>
+    /// <param name="topTrakingIndex"> 첫번째 traking 좌표 Vector </param>
+    /// <param name="bottomTrakingIndex"> 두번째 traking 좌표 Vector </param>
+    /// <param name="amatureIndex"> bone 배열의 index </param>
+    /// <param name="tmp">각도를 보정 하는 함수 </param>
+    /// <returns> 측정된 각도 </returns>
     float calcAngleAndSetRotation(Vector3 topTrakingVector, Vector3 bottomTrakingVector, int amatureIndex, Func<float, Vector3, Vector3, Vector3> tmp)
     {
         if (topTrakingVector == new Vector3(-1, -1, -1) || bottomTrakingVector == new Vector3(-1, -1, -1))
@@ -248,20 +304,61 @@ public class Cernerbee : MonoBehaviour
         }
     }
 
-    float calcAngleSetRotationForLeg(int topTrakingIndex, int bottomTrakingIndex, int amatureIndex, Func<float, int, Vector3> tmp)
+    float calcAngleAndSetRotation(int topTrakingVector, int  bottomTrakingVector, int amatureIndex, Func<float, Vector3, Vector3, float> tmp)
     {
-        if (trakingCoordinate[topTrakingIndex] == new Vector3(-1, -1, -1) || trakingCoordinate[bottomTrakingIndex] == new Vector3(-1, -1, -1))
+        if (trakingCoordinate[topTrakingVector] == new Vector3(-1, -1, -1) || trakingCoordinate[topTrakingVector] == new Vector3(-1, -1, -1))
         {
             AmatureBone[amatureIndex].localEulerAngles = defaultRotation[amatureIndex];
             return -1;
         }
         else
         {
-            float boneAngle = Quaternion.FromToRotation(Vector3.forward, trakingCoordinate[topTrakingIndex] - trakingCoordinate[bottomTrakingIndex]).eulerAngles.z;
-            Vector3 currAngle = AmatureBone[amatureIndex].eulerAngles;
-            AmatureBone[amatureIndex].eulerAngles = new Vector3(boneAngle,currAngle.y,currAngle.z);
+            float boneAngle = Quaternion.FromToRotation(Vector3.forward, trakingCoordinate[topTrakingVector] - trakingCoordinate[bottomTrakingVector]).eulerAngles.z;
+            Vector3 direction = trakingCoordinate[topTrakingVector] - trakingCoordinate[bottomTrakingVector];
+
+            Vector3 nextAngle = AmatureBone[amatureIndex].eulerAngles;
+            nextAngle.x = tmp(boneAngle, nextAngle, direction.normalized);
+            AmatureBone[amatureIndex].eulerAngles = nextAngle;
             return boneAngle;
         }
+    }
+
+
+    /// <summary>
+    /// 수직 벡터 연산을 위한 함수 (머리 각도 측정 용)
+    /// </summary>
+    /// <param name="leftEar"> 왼쪽 귀 벡터</param>
+    /// <param name="rightEar">오른쪽 귀 벡터</param>
+    /// <returns></returns>
+    float calcPerpendicularAngle(Vector3 leftEar, Vector3 rightEar)
+    {
+        if(leftEar == new Vector3(-1,-1,-1)) 
+        {
+            leftEar = trakingCoordinate[0]; 
+        }
+        else if(rightEar == new Vector3(-1, -1, -1))
+        {
+            rightEar = trakingCoordinate[0];
+        }
+
+        Vector3 direction = (leftEar - rightEar).normalized;
+        Vector3 resultVector = Vector3.zero;
+        Vector3.OrthoNormalize(ref direction,ref resultVector);
+        float result = Quaternion.FromToRotation(Vector3.forward, resultVector).eulerAngles.z;
+
+        if (resultVector.x > 0)
+        {
+            if (result > 90) result = 360 - result;
+            else result = result - 90f;
+        }
+        else
+        {
+            if (result < 90) result = 360 - result;
+            else result = result + 90f;
+        }
+        result *= -1;
+
+        return result;
     }
 
     /// <summary>
