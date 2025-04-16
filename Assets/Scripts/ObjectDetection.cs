@@ -203,7 +203,9 @@ public class ObjectDetection : MonoBehaviour
                 //UnityEngine.Debug.Log("index : "+i+", x : " + keyPosition[i][0]+", y : " + keyPosition[i][1]);
             }
             //UnityEngine.Debug.Log(trakingCoordinate);
+            if(!carnerbee.isTraking()) carnerbee.setTraking(true);
             carnerbee.setTrakingCoordinate(trakingCoordinate);
+            
 
             /*            // NMS Àû¿ë
                         List<BoundingBox> finalBoxes = ApplyNMS(boxes, iouThreshold);

@@ -21,7 +21,7 @@ public class Cernerbee : MonoBehaviour
      * 9. spine
      */
     [SerializeField] private Transform[] AmatureBone;
-    
+
     [SerializeField] private Vector3[] defaultRotation;
 
     public GameObject PelvisDebug;
@@ -49,6 +49,8 @@ public class Cernerbee : MonoBehaviour
 
     private Vector3[] prevRotation = new Vector3[10];
 
+    private bool traking;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -60,11 +62,12 @@ public class Cernerbee : MonoBehaviour
         {
             prevRotation[i] = new Vector3(-1,-1,-1);
         }
+        traking = false;
     }
-
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
+        if (!isTraking()) return;
         if (trakingCoordinate == null || trakingCoordinate.Length == 0) return;
         if(firstTrakingCoordinate == null)
         {
@@ -178,30 +181,19 @@ public class Cernerbee : MonoBehaviour
         float leftUppefLeg = calcAngleAndSetRotation(13, 11, 5, (angle, currAngle, direction) =>
         {
             Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
-            
-
-
-            Debug.Log("angle : " + angle + ", dircetion : " + direction);
-            result.x = angle;
-            return result.x;
-        });
-
-        // 오른 허벅지
-        float rightUppefLeg = calcAngleAndSetRotation(14, 12, 7, (angle, currAngle, direction) => {
-            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
-            //Debug.Log("angle : "+angle + ", dircetion : "+direction);
-            if(direction.x < 0)
+            //Debug.Log("angle : " + angle + ", dircetion : " + direction);
+            if (direction.x < 0)
             {
                 if (direction.y < 0)
                 {
                     // 90 ~ 180
-                    if (angle > 180) result.x = angle-180;
+                    if (angle > 180) result.x = angle - 180;
                     else result.x = angle;
                 }
                 else
                 {
                     // 180 ~ 270 
-                    if (angle < 180) result.x = angle+180;
+                    if (angle < 180) result.x = angle + 180;
                     else result.x = angle;
                 }
             }
@@ -210,28 +202,128 @@ public class Cernerbee : MonoBehaviour
                 if (direction.y < 0)
                 {
                     // 0 ~ 90
-                    if (angle > 90) result.x = angle-180;
+                    if (angle > 90) result.x = angle - 180;
                     else result.x = angle;
                 }
                 else
                 {
                     // 270 ~ 360
-                    if (angle < 270) result.x = angle+180;
+                    if (angle < 270) result.x = angle + 180;
                     else result.x = angle;
                 }
             }
+            return (result.x-90f)*-1;
+        });
 
-            result.x *= -1;
-            return result.x;
+        // 오른 허벅지
+        float rightUppefLeg = calcAngleAndSetRotation(14, 12, 7, (angle, currAngle, direction) => {
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
+            if (direction.x < 0)
+            {
+                if (direction.y < 0)
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 180 ~ 270 
+                    if (angle < 180) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 0 ~ 90
+                    if (angle > 90) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            return (result.x - 90f);
         });
 
         //Debug.Log(leftUppefLeg);
         //Debug.Log(rightUppefLeg + "," + AmatureBone[7].localEulerAngles.x);
 
         // 왼 종아리
-        //calcAngleAndSetRotation(15, 13, 6, (angle) => 0f);
+        calcAngleAndSetRotation(15, 13, 6, (angle, currAngle, direction) => {
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
+            if (direction.x < 0)
+            {
+                if (direction.y < 0)
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 180 ~ 270 
+                    if (angle < 180) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 0 ~ 90
+                    if (angle > 90) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            return -1*(result.x - 90f);
+        });
         // 오른 종아리
-        //calcAngleAndSetRotation(16, 14, 8, (angle) => 0f);
+        calcAngleAndSetRotation(16, 14, 8, (angle, currAngle, direction) => {
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, currAngle.z);
+            if (direction.x < 0)
+            {
+                if (direction.y < 0)
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 180 ~ 270 
+                    if (angle < 180) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 0 ~ 90
+                    if (angle > 90) result.x = angle - 180;
+                    else result.x = angle;
+                }
+                else
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.x = angle + 180;
+                    else result.x = angle;
+                }
+            }
+            return (result.x - 90f);
+        });
 
 
         //Debug.Log("어깨 : " + trakingCoordinate[5] + ","+ trakingCoordinate[6]+" 골반 : " + trakingCoordinate[11]+", "+ trakingCoordinate[12]);
@@ -264,6 +356,9 @@ public class Cernerbee : MonoBehaviour
     {
         this.trakingCoordinate = trakingCoordinate;
     }
+
+    public bool isTraking() { return traking; }
+    public void setTraking(bool traking) { this.traking = traking; }
 
     /// <summary>
     /// 두 개의 traking 좌표를 통해 회전값 및 방향을 찾아 지정된 bone의 회전값을 반영하는 함수
@@ -304,6 +399,14 @@ public class Cernerbee : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 다리의 움직임을 제어하기 위한
+    /// </summary>
+    /// <param name="topTrakingVector"></param>
+    /// <param name="bottomTrakingVector"></param>
+    /// <param name="amatureIndex"></param>
+    /// <param name="tmp"></param>
+    /// <returns></returns>
     float calcAngleAndSetRotation(int topTrakingVector, int  bottomTrakingVector, int amatureIndex, Func<float, Vector3, Vector3, float> tmp)
     {
         if (trakingCoordinate[topTrakingVector] == new Vector3(-1, -1, -1) || trakingCoordinate[topTrakingVector] == new Vector3(-1, -1, -1))
