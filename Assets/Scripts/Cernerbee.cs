@@ -19,6 +19,7 @@ public class Cernerbee : MonoBehaviour
      * 7. right upper leg
      * 8. right lower leg
      * 9. spine
+     * 10. hip
      */
     [SerializeField] private Transform[] AmatureBone;
 
@@ -51,6 +52,9 @@ public class Cernerbee : MonoBehaviour
 
     private bool traking;
 
+    private Vector3 defaultHipPos;
+    private Vector3 defaultPelvis = new Vector3(-312, -380, 0);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -63,6 +67,8 @@ public class Cernerbee : MonoBehaviour
             prevRotation[i] = new Vector3(-1,-1,-1);
         }
         traking = false;
+        
+        defaultHipPos = AmatureBone[10].transform.position;
     }
     // Update is called once per frame
     void LateUpdate()
@@ -80,32 +86,31 @@ public class Cernerbee : MonoBehaviour
                 }
             }
         }
-        
+
+        Vector3 shoulder = calcCenterVector(trakingCoordinate[5], trakingCoordinate[6]);
+        Vector3 pelvis = calcCenterVector(trakingCoordinate[11], trakingCoordinate[12]);
+
+        Vector3 movement = defaultHipPos +(pelvis - defaultPelvis);
+        //Debug.Log(movement);
+        //movement.y = movement.y <  ?  : movement.y;
+        movement.x *= -1;
+
+        AmatureBone[10].transform.position = movement;
+
 
         // ¿Þ À§ÆÈ
         calcAngleAndSetRotation(7, 5, 1, (angle, currAngle, direction) => { 
             Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
-            result.z = angle * -1 ;
-            return result;
-        });
-        // ¿À¸¥ À§ÆÈ
-        calcAngleAndSetRotation(8, 6, 3, (angle, currAngle, direction) => {
             
-            Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
-            result.z = angle * -1 ;
-            return result;
-        });
-        // ¿Þ ÆÈ¶Ò
-        float leftarm = calcAngleAndSetRotation(9, 7, 2, (angle, currAngle, direction) => {
-            //Debug.Log("angle : "+ Mathf.Ceil(angle) + ", direction : " + direction);
-            Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
             if (direction.x < 0)
             {
-                if(direction.y < 0)
+                if (direction.y < 0)
                 {
                     // 270 ~ 360
                     if (angle < 270) result.z = angle + 180;
                     else result.z = angle;
+
+                    if (angle < 320) result.z = 320f;
                 }
                 else
                 {
@@ -121,6 +126,88 @@ public class Cernerbee : MonoBehaviour
                     // 180 ~ 270
                     if (angle < 180) result.z = angle + 180;
                     else result.z = angle;
+                }
+                else
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.z = angle - 180;
+                    else result.z = angle;
+                }
+            }
+            
+            result.z *= -1 ;
+            return result;
+        });
+        // ¿À¸¥ À§ÆÈ
+        calcAngleAndSetRotation(8, 6, 3, (angle, currAngle, direction) => {
+            
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
+            //Debug.Log(angle + ", " + direction);
+            if (direction.x < 0)
+            {
+                if (direction.y < 0)
+                {
+                    // 90 ~ 180
+                    if (angle > 180) result.z = angle - 180;
+                    else result.z = angle;
+                }
+                else
+                {
+                    // 180 ~ 270 
+                    if (angle < 180) result.z = angle + 180;
+                    else result.z = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 0 ~ 90
+                    if (angle > 90) result.z = angle - 180;
+                    else result.z = angle;
+
+                    if (angle > 40) result.z = 40f;
+                }
+                else
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.z = angle + 180;
+                    else result.z = angle;
+                }
+            }
+            result.z *= -1 ;
+            return result;
+        });
+        // ¿Þ ÆÈ¶Ò
+        float leftarm = calcAngleAndSetRotation(9, 7, 2, (angle, currAngle, direction) => {
+            //Debug.Log("angle : "+ Mathf.Ceil(angle) + ", direction : " + direction);
+            Vector3 result = new Vector3(currAngle.x, currAngle.y, 0);
+            if (direction.x < 0)
+            {
+                if(direction.y < 0)
+                {
+                    // 270 ~ 360
+                    if (angle < 270) result.z = angle + 180;
+                    else result.z = angle;
+
+                    if (angle < 340) result.z = 340f;
+                }
+                else
+                {
+                    // 0 ~ 90 
+                    if (angle > 90) result.z = angle - 180;
+                    else result.z = angle;
+                }
+            }
+            else
+            {
+                if (direction.y < 0)
+                {
+                    // 180 ~ 270
+                    if (angle < 180) result.z = angle + 180;
+                    else result.z = angle;
+
+                    
                 }
                 else
                 {
@@ -161,6 +248,8 @@ public class Cernerbee : MonoBehaviour
                     // 0 ~ 90
                     if (angle > 90) result.z = angle - 180;
                     else result.z = angle;
+
+                    if (angle > 20) result.z = 20f;
                 }
                 else
                 {
@@ -328,10 +417,9 @@ public class Cernerbee : MonoBehaviour
 
         //Debug.Log("¾î±ú : " + trakingCoordinate[5] + ","+ trakingCoordinate[6]+" °ñ¹Ý : " + trakingCoordinate[11]+", "+ trakingCoordinate[12]);
         // Ã´Ãß
-        Vector3 shoulder = calcCenterVector(trakingCoordinate[5], trakingCoordinate[6]);
-        Vector3 pelvis = calcCenterVector(trakingCoordinate[11], trakingCoordinate[12]);
-        PelvisDebug.transform.position = pelvis;
-        ShoulderDebug.transform.position = shoulder;
+        
+        //PelvisDebug.transform.position = pelvis;
+        //ShoulderDebug.transform.position = shoulder;
         
         calcAngleAndSetRotation(shoulder, pelvis, 9, (boneAngle, currAngle, direction) => {
             //Debug.Log(boneAngle);
