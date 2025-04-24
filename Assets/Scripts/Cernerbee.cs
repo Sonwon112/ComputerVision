@@ -55,6 +55,8 @@ public class Cernerbee : MonoBehaviour
     private Vector3 defaultHipPos;
     private Vector3 defaultPelvis = new Vector3(-312, -380, 0);
 
+    private Animator animator;
+   
     // Start is called before the first frame update
     void Start()
     {
@@ -69,10 +71,12 @@ public class Cernerbee : MonoBehaviour
         traking = false;
         
         defaultHipPos = AmatureBone[10].transform.position;
+        animator = GetComponent<Animator>();
     }
     // Update is called once per frame
     void LateUpdate()
     {
+        if (!animator.GetBool(Manager.IS_TRAKING)) return;
         if (!isTraking()) return;
         if (trakingCoordinate == null || trakingCoordinate.Length == 0) return;
         if(firstTrakingCoordinate == null)
@@ -89,9 +93,10 @@ public class Cernerbee : MonoBehaviour
 
         Vector3 shoulder = calcCenterVector(trakingCoordinate[5], trakingCoordinate[6]);
         Vector3 pelvis = calcCenterVector(trakingCoordinate[11], trakingCoordinate[12]);
-
+        
         Vector3 movement = defaultHipPos +(pelvis - defaultPelvis);
-        //Debug.Log(movement);
+        movement.y -= 70f;
+        Debug.Log(defaultHipPos + "," +movement);
         //movement.y = movement.y <  ?  : movement.y;
         movement.x *= -1;
 
@@ -440,13 +445,34 @@ public class Cernerbee : MonoBehaviour
         AmatureBone[0].localEulerAngles = nextHeadAngle;
     }
 
+    /// <summary>
+    /// 측정된 각 관절 좌표 저장
+    /// </summary>
+    /// <param name="trakingCoordinate"></param>
     public void setTrakingCoordinate(Vector3[] trakingCoordinate)
     {
         this.trakingCoordinate = trakingCoordinate;
     }
 
+    /// <summary>
+    /// 현재 트래킹 상태인지 확인하는 함수
+    /// </summary>
+    /// <returns>트래킹 상태 true : 트래킹 중, false : 트래킹 안하는 중</returns>
     public bool isTraking() { return traking; }
+    /// <summary>
+    /// 트래킹 상태 변환 함수
+    /// </summary>
+    /// <param name="traking"> 변환 할 트래킹 상태</param>
     public void setTraking(bool traking) { this.traking = traking; }
+    /// <summary>
+    /// 커너비 등장 완료 후 트래킹 상태를 true로 바꾸는 함수
+    /// </summary>
+    public void startTraking() { traking = true; }
+
+    public void setDefaultPelvis(Vector3 leftPelvis, Vector3 rightPelvis)
+    {
+        defaultPelvis =  calcCenterVector(leftPelvis, rightPelvis);
+    }
 
     /// <summary>
     /// 두 개의 traking 좌표를 통해 회전값 및 방향을 찾아 지정된 bone의 회전값을 반영하는 함수
@@ -566,4 +592,5 @@ public class Cernerbee : MonoBehaviour
 
         return p1 + middleVector;
     }
+
 }
