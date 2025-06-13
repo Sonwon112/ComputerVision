@@ -9,8 +9,11 @@ public class NUI_Button : MonoBehaviour
     [SerializeField] private string buttonText;
     [SerializeField] private Color buttonColor;
 
+
     private TMP_Text txtButton;
     private Image imgButton;
+    private BtnEvent currEvent;
+
 
     // Start is called before the first frame update
     void Start()
@@ -21,14 +24,17 @@ public class NUI_Button : MonoBehaviour
         imgButton = transform.GetComponentInChildren<Image>();
         if( imgButton != null )
             imgButton.color = buttonColor;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
+        currEvent = GetComponent<BtnEvent>();
         
     }
 
-
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag.Equals("Interact"))
+        {
+            currEvent?.PlayEvent();
+        }
+    }
 
 }

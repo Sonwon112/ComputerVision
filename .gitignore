@@ -470,7 +470,5 @@ FodyWeavers.xsd
 
 **/3DModel
 **/Models
-/Assets/TextMesh Pro/
-/Assets/VRMShaders/
-/Assets/VRM/
-/Assets/UniGLTF/
+Assets/*
+!Assets/Scripts/

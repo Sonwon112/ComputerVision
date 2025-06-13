@@ -132,7 +132,7 @@ public class ObjectDetection : MonoBehaviour
             int index = 0;
 
 
-            // 유효한 경계상자 추출
+            // 각 관절 포인트 좌표 추적
             for (int a = 0; a < anchor; a++)
             {
 
@@ -158,7 +158,7 @@ public class ObjectDetection : MonoBehaviour
 
                 if (x <120 || x > 570)
                 {
-                    //UnityEngine.Debug.Log("트래킹 범위 아님");
+                    //UnityEngine.Debug.Log("트래킹 범위 아님");                    
                     carnerbee.setTraking(false);
                     Manager.Instance.hideStage();
                     

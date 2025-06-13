@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject[] rightButton;
     [SerializeField] private GameObject[] leftButton;
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float hideX = 127f;
+    [SerializeField] private float showX = 57f;
 
     public static UIManager instance;
     private bool isShow = false;
@@ -25,7 +27,7 @@ public class UIManager : MonoBehaviour
             foreach(GameObject btn in rightButton)
             {
                 Vector3 currPos = btn.transform.position;
-                btn.transform.position = Vector3.MoveTowards(currPos, new Vector3(57, currPos.y, currPos.z),speed*Time.deltaTime);
+                btn.transform.position = Vector3.MoveTowards(currPos, new Vector3(showX, currPos.y, currPos.z),speed*Time.deltaTime);
             }
         }
         else
@@ -33,7 +35,7 @@ public class UIManager : MonoBehaviour
             foreach (GameObject btn in rightButton)
             {
                 Vector3 currPos = btn.transform.position;
-                btn.transform.position = Vector3.MoveTowards(currPos, new Vector3(127, currPos.y, currPos.z), speed * Time.deltaTime);
+                btn.transform.position = Vector3.MoveTowards(currPos, new Vector3(hideX, currPos.y, currPos.z), speed * Time.deltaTime);
             }
         }
     }

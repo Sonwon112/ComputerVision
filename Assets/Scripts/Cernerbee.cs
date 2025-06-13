@@ -96,7 +96,7 @@ public class Cernerbee : MonoBehaviour
         
         Vector3 movement = defaultHipPos +(pelvis - defaultPelvis);
         movement.y -= 70f;
-        Debug.Log(defaultHipPos + "," +movement);
+        //Debug.Log(defaultHipPos + "," +movement);
         //movement.y = movement.y <  ?  : movement.y;
         movement.x *= -1;
 

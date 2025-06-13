@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Hip
   - EndPoint
+  - Interact
   layers:
   - Default
   - TransparentFX

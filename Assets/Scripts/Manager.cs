@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
@@ -14,12 +16,20 @@ public class Manager : MonoBehaviour
     private Animator stageBackgroundAnimator;
     [SerializeField] private GameObject Cornerbee;
     private Animator cornerbeeAnimator;
-    
+    [SerializeField] private GameObject ObjectDetection;
+
+    [Header("UI")]
+    [SerializeField] private GameObject CamList;
+    [SerializeField] private GameObject Content;
+
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         if(Instance != this) Instance = this;
+
+        WebCamDevice[] camArr = WebCamShader.getCamList();
+        AddCameList(camArr);
     }
 
     private void Start()
@@ -56,4 +66,25 @@ public class Manager : MonoBehaviour
     {
         cornerbeeAnimator.SetBool(IS_TRAKING, true);
     }
+
+    public void AddCameList(WebCamDevice[] devices)
+    {
+        Transform viewport = CamList.transform.Find("Viewport").Find("Content");
+        float yPos = -150f;
+        for (int i = 0; i < devices.Length; i++) {
+            GameObject content = Instantiate(Content,viewport);
+            content.GetComponent<RectTransform>().transform.localPosition = new Vector3(0,yPos,0);
+            yPos -= 280f;
+
+            content.name = i + "";
+            content.GetComponentInChildren<TMP_Text>().text = devices[i].name;
+            content.GetComponent<Button>().onClick.AddListener(() => { 
+                bool result = WebCamShader.setCam(content.name); 
+                if(result)
+                    CamList.gameObject.SetActive(false);
+                    ObjectDetection.SetActive(true);
+            });
+        }
+    }
+
 }
